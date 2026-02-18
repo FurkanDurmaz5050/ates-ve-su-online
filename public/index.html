@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🔥💧 Ateş ve Su Online</title>
+  <title>Ateş ve Su - Online</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <!-- Lobi Ekranı -->
+  <!-- ===== LOBİ EKRANI ===== -->
   <div id="lobby-screen" class="screen active">
     <div class="lobby-container">
       <h1 class="game-title">
@@ -15,14 +15,13 @@
         <span class="and-text">ve</span>
         <span class="water-text">SU</span>
       </h1>
-      <p class="subtitle">Online Çok Oyunculu</p>
+      <p class="subtitle">Orman Tapınağı • Online</p>
 
       <div class="lobby-info">
-        <p>🎮 İki oyunculu kooperatif platform oyunu</p>
         <p>🔥 Ateş karakteri su havuzlarından kaçmalı</p>
         <p>💧 Su karakteri ateş havuzlarından kaçmalı</p>
-        <p>☠️ İkisi de zehirli havuzlardan uzak durmalı</p>
-        <p>🚪 Her iki oyuncu da kapısına ulaşmalı!</p>
+        <p>☠️ Yeşil asit havuzları ikisini de öldürür</p>
+        <p>🚪 Her iki oyuncu kendi kapısına ulaşmalı!</p>
       </div>
 
       <div id="lobby-status" class="lobby-status hidden">
@@ -31,20 +30,20 @@
       </div>
 
       <button id="find-game-btn" class="btn btn-play">
-        🎮 Oyun Ara
+        Oyun Ara
       </button>
 
       <div class="controls-info">
         <h3>Kontroller</h3>
         <div class="controls-grid">
           <div class="control-set">
-            <h4>Seçenek 1</h4>
-            <p>⬆️ Zıpla</p>
-            <p>⬅️ Sol</p>
-            <p>➡️ Sağ</p>
+            <h4>Ok Tuşları</h4>
+            <p>↑ Zıpla</p>
+            <p>← Sol</p>
+            <p>→ Sağ</p>
           </div>
           <div class="control-set">
-            <h4>Seçenek 2</h4>
+            <h4>WASD</h4>
             <p>W Zıpla</p>
             <p>A Sol</p>
             <p>D Sağ</p>
@@ -54,7 +53,7 @@
     </div>
   </div>
 
-  <!-- Oyun Ekranı -->
+  <!-- ===== OYUN EKRANI ===== -->
   <div id="game-screen" class="screen">
     <div class="game-header">
       <div id="player-role" class="role-badge"></div>
@@ -65,8 +64,8 @@
       <canvas id="game-canvas" width="960" height="640"></canvas>
 
       <!-- Overlay mesajları -->
-      <div id="overlay" class="overlay hidden">
-        <div id="overlay-content" class="overlay-content"></div>
+      <div id="overlay-container" class="overlay hidden">
+        <div class="overlay-content"></div>
       </div>
     </div>
   </div>

@@ -8,27 +8,20 @@ class Game {
     this.input = inputHandler;
     this.renderer = new Renderer(canvas);
 
-    // Oyun durumu
     this.state = null;
-    this.status = 'idle'; // idle, waiting, countdown, playing, death, won, disconnected
+    this.status = 'idle';
     this.countdownValue = null;
     this.myRole = null;
 
-    // Interpolasyon için durum tamponu
     this.stateBuffer = [];
-    this.interpolationDelay = 50; // ms
+    this.interpolationDelay = 50;
 
-    // Animasyon
     this.animFrameId = null;
-    this.lastRenderTime = 0;
+    this.completionTicks = 0;
 
-    // Ağ olaylarını dinle
     this.setupNetworkListeners();
   }
 
-  /**
-   * Ağ olaylarını dinle
-   */
   setupNetworkListeners() {
     this.network.on('role-assigned', (data) => {
       this.myRole = data.role;
@@ -52,83 +45,43 @@ class Game {
     });
 
     this.network.on('game-state', (state) => {
-      // Durum tamponuna ekle (interpolasyon için)
-      this.stateBuffer.push({
-        time: Date.now(),
-        state: state
-      });
-
-      // Tampon çok büyürse eski durumları sil
-      if (this.stateBuffer.length > 10) {
-        this.stateBuffer.shift();
-      }
-
+      this.stateBuffer.push({ time: Date.now(), state: state });
+      if (this.stateBuffer.length > 10) this.stateBuffer.shift();
       this.state = state;
     });
 
-    this.network.on('player-died', (data) => {
-      this.status = 'death';
-    });
-
-    this.network.on('respawn', () => {
-      this.status = 'playing';
-    });
+    this.network.on('player-died', () => { this.status = 'death'; });
+    this.network.on('respawn', () => { this.status = 'playing'; });
 
     this.network.on('level-complete', (data) => {
       this.status = 'won';
       this.completionTicks = data.ticks;
     });
 
-    this.network.on('partner-disconnected', (data) => {
+    this.network.on('partner-disconnected', () => {
       this.status = 'disconnected';
     });
   }
 
-  /**
-   * Oyun döngüsünü başlat
-   */
-  start() {
-    this.loop();
-  }
+  start() { this.loop(); }
 
-  /**
-   * Ana render döngüsü (60 FPS)
-   */
   loop() {
     this.animFrameId = requestAnimationFrame(() => this.loop());
 
-    const now = Date.now();
-
-    // Input gönder (oyun devam ediyorsa)
     if (this.status === 'playing') {
-      const input = this.input.getInput();
-      this.network.sendInput(input);
+      this.network.sendInput(this.input.getInput());
     }
 
-    // Interpolasyon ile mevcut durumu hesapla
     const renderState = this.getInterpolatedState();
-
-    // Çiz
     this.renderer.render(renderState || this.state);
-
-    // Overlay çiz
     this.renderOverlay();
   }
 
-  /**
-   * İnterpolasyon ile pürüzsüz durum hesapla
-   */
   getInterpolatedState() {
-    if (this.stateBuffer.length < 2) {
-      return this.state;
-    }
+    if (this.stateBuffer.length < 2) return this.state;
 
-    const now = Date.now();
-    const renderTime = now - this.interpolationDelay;
-
-    // renderTime'a en yakın iki durumu bul
-    let prev = null;
-    let next = null;
+    const renderTime = Date.now() - this.interpolationDelay;
+    let prev = null, next = null;
 
     for (let i = 0; i < this.stateBuffer.length - 1; i++) {
       if (this.stateBuffer[i].time <= renderTime && this.stateBuffer[i + 1].time >= renderTime) {
@@ -138,48 +91,33 @@ class Game {
       }
     }
 
-    if (!prev || !next) {
-      // Tampondaki son durumu kullan
-      return this.stateBuffer[this.stateBuffer.length - 1].state;
-    }
+    if (!prev || !next) return this.stateBuffer[this.stateBuffer.length - 1].state;
 
-    // Lineer interpolasyon
-    const timeDiff = next.time - prev.time;
-    const t = timeDiff > 0 ? (renderTime - prev.time) / timeDiff : 0;
-
+    const td = next.time - prev.time;
+    const t = td > 0 ? (renderTime - prev.time) / td : 0;
     return this.lerpState(prev.state, next.state, t);
   }
 
-  /**
-   * İki durum arasında lineer interpolasyon
-   */
-  lerpState(stateA, stateB, t) {
-    if (!stateA || !stateB || !stateA.players || !stateB.players) {
-      return stateB || stateA;
-    }
-
+  lerpState(a, b, t) {
+    if (!a || !b || !a.players || !b.players) return b || a;
     const lerp = (a, b, t) => a + (b - a) * t;
-
     return {
-      ...stateB,
+      ...b,
       players: {
         fire: {
-          ...stateB.players.fire,
-          x: lerp(stateA.players.fire.x, stateB.players.fire.x, t),
-          y: lerp(stateA.players.fire.y, stateB.players.fire.y, t)
+          ...b.players.fire,
+          x: lerp(a.players.fire.x, b.players.fire.x, t),
+          y: lerp(a.players.fire.y, b.players.fire.y, t)
         },
         water: {
-          ...stateB.players.water,
-          x: lerp(stateA.players.water.x, stateB.players.water.x, t),
-          y: lerp(stateA.players.water.y, stateB.players.water.y, t)
+          ...b.players.water,
+          x: lerp(a.players.water.x, b.players.water.x, t),
+          y: lerp(a.players.water.y, b.players.water.y, t)
         }
       }
     };
   }
 
-  /**
-   * Overlay mesajlarını çiz
-   */
   renderOverlay() {
     switch (this.status) {
       case 'countdown':
@@ -187,55 +125,35 @@ class Game {
           if (this.countdownValue > 0) {
             this.renderer.drawCountdown(this.countdownValue);
           } else {
-            this.renderer.drawMessage('BAŞLA!', '', '#44ff44');
+            this.renderer.drawMessage('BAŞLA!', '', '#ffcc00');
           }
         }
         break;
-
       case 'death':
-        this.renderer.drawMessage(
-          '💀 ÖLDÜNÜZ!',
-          'Yeniden doğuluyor...',
-          '#ff4444'
-        );
+        this.renderer.drawMessage('ÖLDÜNÜZ!', 'Yeniden doğuluyor...', '#cc4422');
         break;
-
       case 'won':
-        const seconds = (this.completionTicks / 30).toFixed(1);
         this.renderer.drawMessage(
-          '🎉 LEVEL TAMAMLANDI!',
-          `Süre: ${seconds} saniye`,
-          '#44ff44'
+          'BÖLÜM TAMAMLANDI!',
+          `Süre: ${(this.completionTicks / 30).toFixed(1)} saniye`,
+          '#ffcc00'
         );
         break;
-
       case 'disconnected':
-        this.renderer.drawMessage(
-          '🔌 BAĞLANTI KOPTU',
-          'Takım arkadaşınız ayrıldı',
-          '#ffaa00'
-        );
+        this.renderer.drawMessage('BAĞLANTI KOPTU', 'Takım arkadaşınız ayrıldı', '#cc8844');
         break;
     }
   }
 
-  /**
-   * UI güncellemeleri (HTML elementleri)
-   */
   updateUI() {
-    const roleBadge = document.getElementById('player-role');
-    if (roleBadge && this.myRole) {
-      roleBadge.className = `role-badge ${this.myRole}`;
-      roleBadge.textContent = this.myRole === 'fire' ? '🔥 ATEŞ' : '💧 SU';
+    const badge = document.getElementById('player-role');
+    if (badge && this.myRole) {
+      badge.className = `role-badge ${this.myRole}`;
+      badge.textContent = this.myRole === 'fire' ? 'ATEŞ' : 'SU';
     }
   }
 
-  /**
-   * Temizlik
-   */
   destroy() {
-    if (this.animFrameId) {
-      cancelAnimationFrame(this.animFrameId);
-    }
+    if (this.animFrameId) cancelAnimationFrame(this.animFrameId);
   }
 }
