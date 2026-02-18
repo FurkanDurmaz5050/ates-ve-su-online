@@ -31,6 +31,11 @@ document.addEventListener('DOMContentLoaded', () => {
     network = new NetworkManager();
     input = new InputHandler();
 
+    network.on('connected', () => {
+      statusText.textContent = 'Eşleşme aranıyor...';
+      network.findGame();
+    });
+
     network.on('role-assigned', (data) => {
       statusText.textContent = data.role === 'fire'
         ? 'Ateş karakteri olarak atandınız. Eşleşme bekleniyor...'
@@ -75,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 500);
     });
 
-    network.findGame();
+    network.connect();
   });
 
   window.requestReplay = function () {

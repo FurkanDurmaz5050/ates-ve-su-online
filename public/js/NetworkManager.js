@@ -151,4 +151,8 @@ class NetworkManager {
       this.socket.disconnect();
     }
   }
+
+  disconnect() {
+    this.destroy();
+  }
 }
