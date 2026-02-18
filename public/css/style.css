@@ -1,0 +1,319 @@
+/* ===== Genel ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #0a0a1a;
+  color: #e0e0e0;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.screen {
+  display: none;
+  width: 100vw;
+  height: 100vh;
+}
+
+.screen.active {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ===== Lobi Ekranı ===== */
+.lobby-container {
+  text-align: center;
+  max-width: 600px;
+  padding: 20px;
+}
+
+.game-title {
+  font-size: 4rem;
+  margin-bottom: 5px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+
+.fire-text {
+  color: #ff4500;
+  text-shadow: 0 0 20px rgba(255, 69, 0, 0.6), 0 0 40px rgba(255, 69, 0, 0.3);
+}
+
+.and-text {
+  color: #888;
+  font-size: 2rem;
+  margin: 0 10px;
+  text-transform: lowercase;
+}
+
+.water-text {
+  color: #1e90ff;
+  text-shadow: 0 0 20px rgba(30, 144, 255, 0.6), 0 0 40px rgba(30, 144, 255, 0.3);
+}
+
+.subtitle {
+  color: #aaa;
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  letter-spacing: 2px;
+}
+
+.lobby-info {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 30px;
+  text-align: left;
+}
+
+.lobby-info p {
+  padding: 6px 0;
+  font-size: 0.95rem;
+  color: #ccc;
+}
+
+/* ===== Buton ===== */
+.btn {
+  padding: 16px 48px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
+}
+
+.btn-play {
+  background: linear-gradient(135deg, #ff4500, #ff8c00);
+  color: white;
+  box-shadow: 0 4px 20px rgba(255, 69, 0, 0.4);
+}
+
+.btn-play:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 30px rgba(255, 69, 0, 0.6);
+}
+
+.btn-play:active {
+  transform: translateY(0);
+}
+
+.btn-play:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-replay {
+  background: linear-gradient(135deg, #1e90ff, #00bfff);
+  color: white;
+  box-shadow: 0 4px 20px rgba(30, 144, 255, 0.4);
+  padding: 12px 36px;
+  font-size: 1.1rem;
+}
+
+.btn-replay:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 30px rgba(30, 144, 255, 0.6);
+}
+
+.btn-lobby {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ccc;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 12px 36px;
+  font-size: 1.1rem;
+  margin-left: 10px;
+}
+
+.btn-lobby:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ===== Durum / Bekleme ===== */
+.lobby-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 20px 0;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #ff8c00;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== Kontroller ===== */
+.controls-info {
+  margin-top: 30px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.controls-info h3 {
+  color: #999;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.controls-grid {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+}
+
+.control-set h4 {
+  color: #bbb;
+  margin-bottom: 8px;
+}
+
+.control-set p {
+  color: #888;
+  font-size: 0.9rem;
+  padding: 2px 0;
+}
+
+/* ===== Oyun Ekranı ===== */
+#game-screen {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #0a0a1a;
+}
+
+.game-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 8px 16px;
+}
+
+.role-badge {
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+}
+
+.role-badge.fire {
+  background: rgba(255, 69, 0, 0.2);
+  color: #ff4500;
+  border: 1px solid rgba(255, 69, 0, 0.4);
+}
+
+.role-badge.water {
+  background: rgba(30, 144, 255, 0.2);
+  color: #1e90ff;
+  border: 1px solid rgba(30, 144, 255, 0.4);
+}
+
+.game-info {
+  color: #999;
+  font-size: 0.85rem;
+}
+
+/* ===== Canvas ===== */
+.canvas-container {
+  position: relative;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+}
+
+#game-canvas {
+  display: block;
+  background: #111122;
+}
+
+/* ===== Overlay ===== */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.overlay-content {
+  text-align: center;
+  padding: 40px;
+}
+
+.overlay-content h2 {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+}
+
+.overlay-content p {
+  color: #ccc;
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+}
+
+.overlay-content .countdown {
+  font-size: 6rem;
+  font-weight: bold;
+  color: #ff8c00;
+  text-shadow: 0 0 30px rgba(255, 140, 0, 0.5);
+  animation: pulse 1s ease-in-out;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.death-text {
+  color: #ff4444 !important;
+  font-size: 2rem !important;
+}
+
+.win-text {
+  color: #44ff44 !important;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 1000px) {
+  #game-canvas {
+    width: 100vw;
+    height: auto;
+  }
+
+  .game-title {
+    font-size: 2.5rem;
+  }
+}
